@@ -1,4 +1,8 @@
-### 2015-06-09
+### 2015-06-10
+
+Decide to use a Rails app as the base. It provides the necessary bits and can be freely hosted on Heroku to provide an easy interface to obtain data.
+
+Add ability to gather basic data with HQ::Results [https://github.com/FloElite/CFGStats/blob/master/lib/hq/results.rb]. Some years still need some massaging.
 
 ### 2015-06-08
 
