@@ -2,13 +2,6 @@ module HQ
 
   class Region
 
-    def initialize(name, id)
-      @name = name
-      @id = id
-    end
-
-    attr_reader :name, :id
-
     include SimpleEnum
     
     AFRICA = enum('africa', 1)

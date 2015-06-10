@@ -2,13 +2,6 @@ module HQ
 
   class Stage
 
-    def initialize(name, id)
-      @name = name
-      @id = id
-    end
-
-    attr_reader :name, :id
-
     include SimpleEnum
 
     OPEN = enum('open', 0)

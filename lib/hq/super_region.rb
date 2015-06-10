@@ -4,16 +4,6 @@ module HQ
 
   class SuperRegion
 
-    def initialize(name, id)
-      @name = name
-      @id = id
-    end
-
-    attr_reader :name, :id
-
-    @@all = []
-    ALL = @@all
-
     include SimpleEnum
 
     ATLANTIC = enum('atlantic', 1)

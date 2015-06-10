@@ -3,7 +3,16 @@ module SimpleEnum
   extend ActiveSupport::Concern
 
   included do
+
+    def initialize(name, id)
+      @name = name
+      @id = id
+    end
+
+    attr_reader :name, :id
+
     extend Enumerable
+
   end
 
   module ClassMethods

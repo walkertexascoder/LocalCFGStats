@@ -4,13 +4,6 @@ module HQ
 
   class Division
 
-    def initialize(name, id)
-      @name = name
-      @id = id
-    end
-
-    attr_reader :name, :id
-
     include SimpleEnum
 
     MEN = enum('men', 101)
