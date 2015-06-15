@@ -121,26 +121,39 @@ module HQ
     end
 
     def parse_result(result)
-      result.gsub!(/\s*lb\s*/, '')
+      if year < 2015
+        parse_2011_result(result)
+      else
+        parse_2015_result(result)
+      end
+    end
 
-      if result =~ result_matcher
-        result = $1
+    def parse_2011_result(result)
+      result =~ /(\d+)T?\s*\((.+)\)$/
+      {
+          rank: $1.to_i,
+          score: $1.to_i,
+          result: $2
+      }
+    end
+
+    def parse_2015_result(result)
+      result.gsub!(/\s*lb\s*/, '')
+      result =~ /^(\d+)[a-zA-Z]+\s*(\d+)\s*pts(.+)$/
+      rank, score, result = $1, $2, $3
+
+      if result
         result.gsub!(/^\s*0+/, '')
         result.gsub!(/cap/i, 'C')
         # seeing "C" alone makes one think something is missing
         result.gsub!(/^C$/, 'C+0')
       end
 
-      result
-    end
-
-    def result_matcher
-      # presentation changed on the move to super regions...
-      if super_region.present?
-        /pts(.+)$/
-      else
-        /\d+T?\s*\((.+)\)$/
-      end
+      {
+          rank: rank.to_i,
+          score: score.to_i,
+          result: result
+      }
     end
 
     def page
