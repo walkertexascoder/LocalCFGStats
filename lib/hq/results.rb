@@ -20,8 +20,9 @@ module HQ
       @division = division
       @stage = stage
 
-      # regions < 2015, super regions >= 2015
-      if @year < 2015
+      # regions < 2015, super regions >= 2015 for regionals
+      # always for opens
+      if (@year < 2015 && stage == 'regional') || stage == 'open'
         @region = region
       else
         @super_region = region
@@ -40,7 +41,7 @@ module HQ
     URL_PARAMS = {
         # these must be populated.
         division_id: nil,
-        region_id: nil,
+        region: nil,
         year: nil,
         regional: nil, # if not defaulted we get different regions :/
         competition: nil,
@@ -115,8 +116,13 @@ module HQ
         if /number/ =~ cell['class']
           next
         elsif /name/ =~ cell['class']
-          cell.find('a')['href'] =~ /(\d+)$/
-          id = $1.to_i
+          begin
+            cell.find('a')['href'] =~ /(\d+)$/
+            id = $1.to_i
+          rescue
+            puts "unable to parse competitor id" unless year == 2011
+          end
+
           name = cell.text.strip
         else
           results << parse_result(cell.text.strip)
@@ -127,7 +133,7 @@ module HQ
     end
 
     def parse_result(result)
-      if year < 2015
+      if year < 2015 || stage == 'open'
         parse_2011_result(result)
       else
         parse_2015_result(result)
@@ -172,7 +178,7 @@ module HQ
       params = URL_PARAMS.merge(
         year: parse_year,
         division_id: parse_division,
-        region_id: parse_region,
+        region: parse_region,
         regional: parse_super_region || 1,
         competition: parse_stage
       )
