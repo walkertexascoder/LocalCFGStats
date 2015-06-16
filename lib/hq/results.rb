@@ -97,7 +97,10 @@ module HQ
 
         name, results = parse_results_row(row)
 
-        all[name] = results
+        all[name] = {
+            id: ,
+            results: results
+        }
       end
 
       all

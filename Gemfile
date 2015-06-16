@@ -4,6 +4,9 @@ ruby '2.1.2'
 
 gem 'rails', '~> 4.2.1'
 
+gem 'bootstrap-sass'
+gem 'jquery-rails'
+
 gem 'pg'
 
 gem 'capybara'
