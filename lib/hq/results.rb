@@ -95,10 +95,10 @@ module HQ
       page.all('tr').each do |row|
         next if row.all('td').empty?
 
-        name, results = parse_results_row(row)
+        name, id, results = parse_results_row(row)
 
         all[name] = {
-            id: ,
+            id: id,
             results: results
         }
       end
@@ -108,19 +108,22 @@ module HQ
 
     def parse_results_row(row)
       name = nil
+      id = nil
       results = []
 
       row.all('td').each do |cell|
         if /number/ =~ cell['class']
           next
         elsif /name/ =~ cell['class']
+          cell.find('a')['href'] =~ /(\d+)$/
+          id = $1.to_i
           name = cell.text.strip
         else
           results << parse_result(cell.text.strip)
         end
       end
 
-      [name, results]
+      [name, id, results]
     end
 
     def parse_result(result)
