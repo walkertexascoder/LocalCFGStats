@@ -133,7 +133,7 @@ module HQ
     end
 
     def parse_result(result)
-      if year < 2015 || stage == 'open'
+      if stage != 'games' && (year < 2015 || stage == 'open')
         parse_2011_result(result)
       else
         parse_2015_result(result)
