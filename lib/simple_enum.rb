@@ -13,6 +13,10 @@ module SimpleEnum
 
     extend Enumerable
 
+    def self.all_collection
+      @all ||= []
+    end
+
   end
 
   module ClassMethods
@@ -24,16 +28,19 @@ module SimpleEnum
     end
 
     def remember(instance)
-      @@all ||= []
-      @@all << instance
+      all_collection << instance
     end
 
     def each
-      @@all.each {|x| yield x }
+      all_collection.each {|x| yield x }
+    end
+
+    def for_id(id)
+      find {|x| x.id == id }
     end
 
     def all
-      @@all
+      all_collection
     end
 
   end

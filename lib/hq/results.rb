@@ -16,12 +16,12 @@ module HQ
 
     # region and super region will both be passed in the "region" parameter
     def initialize(year: 2015, division: 'men', stage: 'regional', region: 'south')
-      @year = year
+      @year = year.to_i
       @division = division
       @stage = stage
 
       # regions < 2015, super regions >= 2015
-      if year < 2015
+      if @year < 2015
         @region = region
       else
         @super_region = region
@@ -39,14 +39,14 @@ module HQ
     URL = "http://games.crossfit.com/scores/leaderboard.php"
     URL_PARAMS = {
         # these must be populated.
-        division: nil,
-        region: nil,
+        division_id: nil,
+        region_id: nil,
         year: nil,
-        regional: nil,
+        regional: nil, # if not defaulted we get different regions :/
         competition: nil,
 
         # not sure about the rest of these. will leave them as is.
-        stage: 0,
+        stage_id: 0,
         sort: 0,
         page: 0,
         numberperpage: 60,
@@ -171,9 +171,9 @@ module HQ
     def url
       params = URL_PARAMS.merge(
         year: parse_year,
-        division: parse_division,
-        region: parse_region,
-        regional: parse_super_region,
+        division_id: parse_division,
+        region_id: parse_region,
+        regional: parse_super_region || 1,
         competition: parse_stage
       )
 

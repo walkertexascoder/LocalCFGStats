@@ -1,0 +1,6 @@
+= form_tag results_path(format: :csv) do
+  = select_tag :year, year_select_options
+  = select_tag :stage, stage_select_options
+  = select_tag :division, division_select_options
+  = select_tag :region, region_select_options
+  = submit_tag 'Find'
