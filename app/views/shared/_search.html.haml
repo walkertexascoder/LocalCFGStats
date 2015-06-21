@@ -1,6 +1,29 @@
-= form_tag results_path(format: :csv) do
-  = select_tag :year, year_select_options
-  = select_tag :stage, stage_select_options
-  = select_tag :division, division_select_options
-  = select_tag :region, region_select_options
-  = submit_tag 'Download'
+%h2 CFGStats
+
+%h3 Games
+
+= form_tag results_path(stage: 'games', format: :csv), { class: 'form-inline' } do
+  = select_tag :year, year_select_options, { class: 'form-control' }
+  = select_tag :division, division_select_options, { class: 'form-control' }
+  = submit_tag 'Download', { class: 'btn btn-primary' }
+
+%h3 Regionals
+
+= form_tag results_path(stage: 'regional', format: :csv), { class: 'form-inline' } do
+  = select_tag :year, year_select_options, { class: 'form-control' }
+  = select_tag :division, division_select_options, { class: 'form-control' }
+  = select_tag :region, super_region_and_region_select_options, { class: 'form-control' }
+  = submit_tag 'Download', { class: 'btn btn-primary' }
+
+%p.help-block
+  Be careful to only select Super Regions for years 2015 or later.
+
+%h3 Open
+
+= form_tag results_path(stage: 'open', format: :csv), { class: 'form-inline' } do
+  .form-group
+    = select_tag :year, year_select_options, { class: 'form-control' }
+    = select_tag :division, division_select_options, { class: 'form-control' }
+    = select_tag :region, region_select_options, { class: 'form-control' }
+    = submit_tag 'Download', { class: 'btn btn-primary' }
+

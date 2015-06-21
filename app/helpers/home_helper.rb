@@ -12,7 +12,7 @@ module HomeHelper
     select_options_by_enum(HQ::Division.all)
   end
 
-  def region_select_options
+  def super_region_and_region_select_options
     super_regions = HQ::SuperRegion.all.map {|e| [e.name.titleize, e.name]}
     regions = HQ::Region.all.map {|e| [e.name.titleize, e.name]}
 
@@ -20,6 +20,10 @@ module HomeHelper
         'Super Region' => super_regions,
         'Region' => regions
     )
+  end
+
+  def region_select_options
+    select_options_by_enum(HQ::Region.all)
   end
 
   def select_options_by_enum(enums)
