@@ -1,4 +1,6 @@
-%h2 CFGStats
+%h1 FloElite CFG Stats
+
+%h2 Results
 
 %h3 Games
 
@@ -27,3 +29,35 @@
     = select_tag :region, region_select_options, { class: 'form-control' }
     = submit_tag 'Download', { class: 'btn btn-primary' }
 
+%h2 Stats
+
+%h3 2015 Regional Event Standard Deviation
+
+%p
+  Look for greatest distance from mean to identify the most superb and lackluster performances,
+  respectively, across all divisions and events.
+
+%p
+  %i
+    Great post-competition wrap-up material since it can objectively identify "stand-out performances".
+
+= form_tag results_path(year: 2015, stage: 'regional', format: :csv), { class: 'form-inline' } do
+  .form-group
+    = select_tag :division, division_select_options, { class: 'form-control' }
+    = select_tag :event, regional_event_select_options, { class: 'form-control' }
+    = submit_tag 'Go', { class: 'btn btn-primary', disabled: 'true' }
+
+%h3 2015 Open and Regional Correlation
+
+%p
+  Find largest and smallest places changes to identify the most surprising and most disappointing
+  performances from the Open to Regionals.
+
+%p
+  %i
+    Useful for any competition with qualifiers, e.g. Granite Games.
+
+= form_tag results_path(year: 2015, stage: 'regional', format: :csv), { class: 'form-inline' } do
+  .form-group
+    = select_tag :division, division_select_options, { class: 'form-control' }
+    = submit_tag 'Go', { class: 'btn btn-primary', disabled: 'true' }

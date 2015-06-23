@@ -30,10 +30,45 @@ module HQ
     end
 
     def get
-      parse_results(page)
+      self
     end
 
-    attr_reader :year, :division, :region, :super_region, :stage
+    attr_reader :year, :division, :stage, :region, :super_region
+
+    include Enumerable
+
+    def each
+      parsed_results.each do |*result|
+        yield *result
+      end
+    end
+
+    def to_csv
+      event_count = parsed_results.first.second[:results].size
+
+      CSV.generate do |csv|
+        header = ['Name']
+        event_count.times do |index|
+          event = "Event #{index + 1}"
+          header << "#{event} Result"
+          header << "#{event} Rank"
+          header << "#{event} Score"
+        end
+        csv << header
+
+        each do |name, attrs|
+          result_attrs = attrs[:results]
+
+          csv_row = [name]
+          result_attrs.each do |result|
+            csv_row << result[:raw]
+            csv_row << result[:rank]
+            csv_row << result[:score]
+          end
+          csv << csv_row
+        end
+      end
+    end
 
     private
 
@@ -90,7 +125,11 @@ module HQ
       end.try(:id)
     end
 
-    def parse_results(page)
+    def parsed_results
+      @parsed_results ||= parse_results
+    end
+
+    def parse_results
       all = {} # hashes are ordered as of 1.9. :yey:!
 
       page.all('tr').each do |row|
@@ -129,6 +168,10 @@ module HQ
         end
       end
 
+      results.each_with_index do |result, index|
+        result[:event_num] = index + 1
+      end
+
       [name, id, results]
     end
 
@@ -145,7 +188,7 @@ module HQ
       {
           rank: $1.to_i,
           score: $1.to_i,
-          result: $2
+          raw: $2
       }
     end
 
@@ -164,7 +207,7 @@ module HQ
       {
           rank: rank.to_i,
           score: score.to_i,
-          result: result
+          raw: result
       }
     end
 

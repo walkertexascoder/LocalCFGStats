@@ -26,6 +26,11 @@ module HomeHelper
     select_options_by_enum(HQ::Region.all)
   end
 
+  def regional_event_select_options
+    options = (1..7).map {|num| ["Event #{num}", num] }
+    options_for_select(options)
+  end
+
   def select_options_by_enum(enums)
     options = enums.map {|e| [e.name.titleize, e.name] }
     options_for_select(options)

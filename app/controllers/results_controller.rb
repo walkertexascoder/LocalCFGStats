@@ -12,7 +12,7 @@ class ResultsController < ApplicationController
     )
 
     respond_to do |format|
-      format.csv { send_data to_csv(results), filename: suggested_filename }
+      format.csv { send_data results.to_csv, filename: suggested_filename }
     end
 
   end
@@ -41,33 +41,6 @@ class ResultsController < ApplicationController
 
   def region_id
     params[:region]
-  end
-
-  def to_csv(results)
-    events = results.first.second[:results].size
-
-    CSV.generate do |csv|
-      header = ['Name']
-      events.times do |index|
-        event = "Event #{index + 1}"
-        header << "#{event} Result"
-        header << "#{event} Rank"
-        header << "#{event} Score"
-      end
-      csv << header
-
-      results.each do |name, attrs|
-        result_attrs = attrs[:results]
-
-        csv_row = [name]
-        result_attrs.each do |result|
-          csv_row << result[:result]
-          csv_row << result[:rank]
-          csv_row << result[:score]
-        end
-        csv << csv_row
-      end
-    end
   end
 
 end
