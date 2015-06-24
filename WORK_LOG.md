@@ -1,3 +1,15 @@
+### 2015-06-24
+
+Deliver database structure for Competitions, Competitors, and Entries. 
+
+Agree to build out standard deviations for Entries across all 2015 Regional division next. Tentatively move on to correlation between Open and Super Regional performances.
+
+### 2015-06-17
+
+Deliver ability to download Games, Regional, and Open results from 2011 at https://floelite-cfg-stats.herokuapp.com
+
+Agree to build out the database so that we can store this information and do meanining work with it.
+
 ### 2015-06-10
 
 Decide to use a Rails app as the base. It provides the necessary bits and can be freely hosted on Heroku to provide an easy interface to obtain data.
