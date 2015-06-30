@@ -36,7 +36,7 @@ module Results
 
         find_competition(results).events.each do |event|
           add_for_finishers(results, event)
-          add_estimated_for_all(entry_ids, index)
+          # add_estimated_for_all(entry_ids, index)
         end
       end
     end
@@ -62,13 +62,36 @@ module Results
       std_dev = stats.standard_deviation || 0
       mean = stats.mean
 
-      execute_sql <<-SQL
-        update results
-           set std_dev = #{std_dev},
-               mean = #{mean},
-               standout = (normalized - #{mean}) / #{std_dev.zero? ? 1 : std_dev}
-         where id in (#{result_ids.join(',')})
-      SQL
+      result_ids.each do |id|
+        # one by one since we want to do some more advanced converstion of normalized
+        # to raw. not to mention we're likely going to serialize these into a more
+        # succinct form so as to serve them up
+        result = Result.find(id)
+
+        result.update!(
+          std_dev: std_dev,
+          raw_std_dev: format_normalized_stat(std_dev, result.event),
+          mean: mean,
+          raw_mean: format_normalized_stat(mean, result.event),
+          standout: (result.normalized - mean) / (std_dev.zero? ? 1 : std_dev)
+        )
+      end
+    end
+
+    def format_normalized_stat(normalized, event)
+      if event.timed?
+        if normalized < 0
+          normalized = - normalized
+        end
+
+        normalized = (normalized / 1_000).round(2)
+
+        raw = ChronicDuration.output(normalized, format: :chrono)
+
+        raw.gsub(/:(\d)\./, ':0\1.')
+      else
+        normalized.round(2).to_s
+      end
     end
 
   end
