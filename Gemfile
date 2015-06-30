@@ -13,6 +13,7 @@ gem 'capybara'
 gem 'awesome_print'
 gem 'chronic_duration'
 gem 'haml-rails'
+gem 'descriptive-statistics'
 
 group :development, :test do
   gem 'byebug'

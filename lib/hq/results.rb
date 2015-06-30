@@ -220,7 +220,7 @@ module HQ
     def url
       params = URL_PARAMS.merge(
         year: parse_year,
-        division_id: parse_division,
+        division: parse_division,
         region: parse_region,
         regional: parse_super_region || 1,
         competition: parse_stage

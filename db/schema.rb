@@ -11,19 +11,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150623083621) do
+ActiveRecord::Schema.define(version: 20150629095554) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "competitions", force: :cascade do |t|
     t.jsonb    "tags"
-    t.jsonb    "events"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.jsonb    "event_attrs"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
   end
 
-  add_index "competitions", ["events"], name: "index_competitions_on_events", using: :gin
+  add_index "competitions", ["event_attrs"], name: "index_competitions_on_event_attrs", using: :gin
   add_index "competitions", ["tags"], name: "index_competitions_on_tags", using: :gin
 
   create_table "competitors", force: :cascade do |t|
@@ -38,7 +38,6 @@ ActiveRecord::Schema.define(version: 20150623083621) do
   create_table "entries", force: :cascade do |t|
     t.integer  "competitor_id"
     t.jsonb    "tags"
-    t.jsonb    "results"
     t.datetime "created_at",     null: false
     t.datetime "updated_at",     null: false
     t.integer  "competition_id"
@@ -46,7 +45,40 @@ ActiveRecord::Schema.define(version: 20150623083621) do
 
   add_index "entries", ["competition_id"], name: "index_entries_on_competition_id", using: :btree
   add_index "entries", ["competitor_id"], name: "index_entries_on_competitor_id", using: :btree
-  add_index "entries", ["results"], name: "index_entries_on_results", using: :gin
   add_index "entries", ["tags"], name: "index_entries_on_tags", using: :gin
+
+  create_table "results", force: :cascade do |t|
+    t.integer  "competition_id"
+    t.integer  "entry_id"
+    t.integer  "event_num"
+    t.string   "raw"
+    t.float    "normalized"
+    t.boolean  "time_capped"
+    t.integer  "rank"
+    t.float    "mean"
+    t.float    "std_dev"
+    t.float    "est_mean"
+    t.float    "est_std_dev"
+    t.float    "standout"
+    t.datetime "created_at",     null: false
+    t.datetime "updated_at",     null: false
+    t.jsonb    "tags"
+    t.integer  "competitor_id"
+  end
+
+  add_index "results", ["competition_id"], name: "index_results_on_competition_id", using: :btree
+  add_index "results", ["competitor_id"], name: "index_results_on_competitor_id", using: :btree
+  add_index "results", ["entry_id"], name: "index_results_on_entry_id", using: :btree
+  add_index "results", ["est_mean"], name: "index_results_on_est_mean", using: :btree
+  add_index "results", ["est_std_dev"], name: "index_results_on_est_std_dev", using: :btree
+  add_index "results", ["event_num"], name: "index_results_on_event_num", using: :btree
+  add_index "results", ["mean"], name: "index_results_on_mean", using: :btree
+  add_index "results", ["normalized"], name: "index_results_on_normalized", using: :btree
+  add_index "results", ["rank"], name: "index_results_on_rank", using: :btree
+  add_index "results", ["raw"], name: "index_results_on_raw", using: :btree
+  add_index "results", ["standout"], name: "index_results_on_standout", using: :btree
+  add_index "results", ["std_dev"], name: "index_results_on_std_dev", using: :btree
+  add_index "results", ["tags"], name: "index_results_on_tags", using: :gin
+  add_index "results", ["time_capped"], name: "index_results_on_time_capped", using: :btree
 
 end
