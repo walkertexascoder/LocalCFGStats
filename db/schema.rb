@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150630073255) do
+ActiveRecord::Schema.define(version: 20150630090401) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -60,18 +60,24 @@ ActiveRecord::Schema.define(version: 20150630073255) do
     t.float    "est_mean"
     t.float    "est_std_dev"
     t.float    "standout"
-    t.datetime "created_at",     null: false
-    t.datetime "updated_at",     null: false
+    t.datetime "created_at",      null: false
+    t.datetime "updated_at",      null: false
     t.jsonb    "tags"
     t.integer  "competitor_id"
     t.string   "raw_std_dev"
     t.string   "raw_mean"
+    t.string   "raw_est_mean"
+    t.string   "raw_est_std_dev"
+    t.float    "est_standout"
+    t.string   "est_raw"
+    t.float    "est_normalized"
   end
 
   add_index "results", ["competition_id"], name: "index_results_on_competition_id", using: :btree
   add_index "results", ["competitor_id"], name: "index_results_on_competitor_id", using: :btree
   add_index "results", ["entry_id"], name: "index_results_on_entry_id", using: :btree
   add_index "results", ["est_mean"], name: "index_results_on_est_mean", using: :btree
+  add_index "results", ["est_standout"], name: "index_results_on_est_standout", using: :btree
   add_index "results", ["est_std_dev"], name: "index_results_on_est_std_dev", using: :btree
   add_index "results", ["event_num"], name: "index_results_on_event_num", using: :btree
   add_index "results", ["mean"], name: "index_results_on_mean", using: :btree

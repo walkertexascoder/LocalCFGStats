@@ -8,7 +8,7 @@ module Results
     include Silence
     include SqlExecutor
 
-    # Results::Ranker.rank!({division: 'teams'}, {year: 2015, stage: 'regional', division: 'teams', region: nil, super_region: nil, fictional: true})
+    # Results::Ranker.rank!({division: 'men'}, {year: 2015, stage: 'regional', division: 'men', region: nil, super_region: nil, fictional: true})
 
     def rank!(*args)
       silence do
@@ -26,7 +26,7 @@ module Results
       results = Result.tagged(from_tags)
 
       find_competition(results).events.each do |event|
-        _score!(results, to_tags, event)
+        rank_for_event!(results, to_tags, event)
       end
     end
 
@@ -39,13 +39,8 @@ module Results
       Competition.find(competition_ids.first)
     end
 
-    def _score!(results, to_tags, event)
-      results = results.event_num(event.num)
-
-      # bigger is always better for all normalized values
-      ordered = results.sort_by {|result| - result.normalized }
-
-      ordered.each_with_index do |result, index|
+    def rank_for_event!(results, to_tags, event)
+      results.event(event.num).order(:normalized).each_with_index do |result, index|
         rank = index + 1
 
         to_result = Result.where(entry_id: result.entry_id, event_num: result.event_num).where("tags @> ?", to_tags.to_json).first
@@ -53,11 +48,14 @@ module Results
           Result.create(
             tags: to_tags,
             competition_id: result.competition_id,
+            competitor_id: result.competitor_id,
             entry_id: result.entry_id,
             event_num: result.event_num,
             raw: result.raw,
             normalized: result.normalized,
             time_capped: result.time_capped,
+            est_raw: result.est_raw,
+            est_normalized: result.est_normalized,
             rank: rank
           )
         end

@@ -26,8 +26,8 @@ module Entries
         new(*args).load!
       end
 
-      def analyze!(peer_group)
-        Results::Stats.apply!(peer_group)
+      def analyze!(*args)
+        Results::Stats.apply!(*args)
       end
 
       def load_2015_regional!
@@ -38,12 +38,18 @@ module Entries
 
           # fictional ranking across all super regions
           Results::Ranker.rank!(
-              {year: 2015, stage: 'regional', division: division},
+              {year: 2015, stage: 'regional', division: division, fictional: false},
               {year: 2015, stage: 'regional', division: division, fictional: true}
           )
 
+          opts = {}
+          if division.in? %w[men women]
+            # so few competitors finished event 3 that we'll do our best to estimate it...
+            opts[:estimate] = 3
+          end
+
           # determine standout, etc.
-          analyze!(year: 2015, stage: 'regional', division: division, fictional: true)
+          analyze!({year: 2015, stage: 'regional', division: division, fictional: true}, opts)
         end
       end
 
@@ -78,7 +84,8 @@ module Entries
           division: results.division,
           stage: results.stage,
           region: results.region,
-          super_region: results.super_region
+          super_region: results.super_region,
+          fictional: false
       }
     end
 

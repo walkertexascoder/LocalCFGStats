@@ -30,6 +30,10 @@ class Competition < ActiveRecord::Base
 
     attr_reader :num, :name, :scoring, :opts
 
+    def reps
+      opts[:reps]
+    end
+
     def timed?
       scoring == 'time'
     end
@@ -61,7 +65,14 @@ class Competition < ActiveRecord::Base
         competition year: 2015, stage: 'regional', division: division do
           event 1, 'Randy', :time, time_cap: '6:00'
           event 2, 'Tommy V', :time, time_cap: '16:00'
-          event 3, 'Chipper', :time, time_cap: '26:00'
+          event 3, 'Chipper', :time, time_cap: '26:00', reps: {
+                     '6:00' => 1, # run
+                     '5' => 50, # ohs
+                     '2' => 100, # ghd
+                     '0.75' => 150, # du
+                     '5' => 50, # sdl
+                     '3' => 100 # bjo
+                 }
           event 4, '250\' HS Walk', :time, time_cap: '3:00'
           event 5, '1RM Snatch', :weight
           event 6, 'Row, C2B, HSPU', :time, time_cap: '16:00'

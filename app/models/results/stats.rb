@@ -20,23 +20,29 @@ module Results
 
     include SqlExecutor
 
-    def apply!(tags)
-      apply_loudly!(tags)
+    def apply!(*args)
+      apply_loudly!(*args)
     end
 
-    def self.apply!(tags)
-      new.apply!(tags)
+    def self.apply!(*args)
+      new.apply!(*args)
     end
 
     private
 
-    def apply_loudly!(tags)
+    def apply_loudly!(tags, opts = {})
       silence do
         results = Result.tagged(tags)
 
         find_competition(results).events.each do |event|
-          add_for_finishers(results, event)
-          # add_estimated_for_all(entry_ids, index)
+          # we want one field that we can use to compare across the board. this will be the
+          # est_* branch. if estimation is requiested then we use reps and/or timings to
+          # estimate the finishing time. otherwise we use the actual.
+          if Array(opts[:estimate]).include?(event.num)
+            add_estimated(results, event)
+          else
+            add_actual(results, event)
+          end
         end
       end
     end
@@ -50,8 +56,8 @@ module Results
       Competition.find(competition_ids.first)
     end
 
-    def add_for_finishers(results, event)
-      result_ids, normalized = results.event_num(event.num).finished.pluck(:id, :normalized).transpose
+    def add_actual(results, event)
+      result_ids, normalized = results.event(event.num).finished.pluck(:id, :normalized).transpose
 
       if normalized.blank?
         puts "no finishers for event #{event.num}"
@@ -73,8 +79,64 @@ module Results
           raw_std_dev: format_normalized_stat(std_dev, result.event),
           mean: mean,
           raw_mean: format_normalized_stat(mean, result.event),
-          standout: (result.normalized - mean) / (std_dev.zero? ? 1 : std_dev)
+          standout: (result.normalized - mean) / (std_dev.zero? ? 1 : std_dev),
+
+          est_std_dev: std_dev,
+          raw_est_std_dev: format_normalized_stat(std_dev, result.event),
+          est_mean: mean,
+          raw_est_mean: format_normalized_stat(mean, result.event),
+          est_standout: (result.normalized - mean) / (std_dev.zero? ? 1 : std_dev)
         )
+      end
+    end
+
+    def add_estimated(results, event)
+      # notice that we just require an attempt
+      results = results.event(event.num).attempted
+
+      finished_ids, finished_normalized = results.not_time_capped.pluck(:id, :normalized).transpose
+
+      stats = DescriptiveStatistics::Stats.new(finished_normalized)
+      std_dev = stats.standard_deviation || 0
+      mean = stats.mean
+
+      capped = results.time_capped
+      est_normalized = capped.pluck(:est_normalized)
+
+      result_ids = finished_ids + capped.pluck(:id)
+      normalized = finished_normalized + est_normalized
+
+      est_stats = DescriptiveStatistics::Stats.new(normalized)
+      est_std_dev = est_stats.standard_deviation || 0 rescue byebug
+      est_mean = est_stats.mean
+
+      result_ids.each do |id|
+        # one by one since we want to do some more advanced converstion of normalized
+        # to raw. not to mention we're likely going to serialize these into a more
+        # succinct form so as to serve them up
+        result = Result.find(id)
+
+        attrs = {
+            std_dev: std_dev,
+            raw_std_dev: format_normalized_stat(std_dev, result.event),
+            mean: mean,
+            raw_mean: format_normalized_stat(mean, result.event),
+
+            est_std_dev: est_std_dev,
+            raw_est_std_dev: format_normalized_stat(est_std_dev, result.event),
+            est_mean: est_mean,
+            raw_est_mean: format_normalized_stat(est_mean, result.event),
+            est_standout: (result.est_normalized - est_mean) / (est_std_dev.zero? ? 1 : est_std_dev)
+        }
+
+        # we only know their actual standout is if no estimation is involved.
+        if result.finished?
+          attrs.merge!(
+              standout: (result.normalized - mean) / (std_dev.zero? ? 1 : std_dev)
+          )
+        end
+
+        result.update!(attrs)
       end
     end
 

@@ -28,13 +28,21 @@ class Score # because Results::Score conflicts with a testing class... :/
     end
   end
 
+  def to_est_normalized(raw)
+    if time_capped?(raw)
+      - est_normalized_time_score_ms(raw)
+    else
+      to_normalized(raw)
+    end
+  end
+
   def time_capped?(raw)
     timed? && !! (raw =~ /c(\+(\d+))?/i)
   end
 
   private
 
-  delegate :timed?, :time_cap_ms, to: :event
+  delegate :timed?, :time_cap_ms, :reps, to: :event
 
   NO_SCORE_RECORDED = /^(?:\s*|---|DNF|WD|CUT|MED|--)$/
   MAXIMUM_POSTGRESQL_INTEGER = 2_147_483_647
@@ -60,10 +68,20 @@ class Score # because Results::Score conflicts with a testing class... :/
     if raw_score.nil? || raw_score =~ NO_SCORE_RECORDED
       MAXIMUM_POSTGRESQL_INTEGER
     elsif time_capped?(raw_score)
-      time_cap_ms + ((1 + $1.to_i) * 1_000) # remember, ms
+      # unless estimating, always assume 1_000 ms per penalty unit
+      time_cap_ms + (penalty_units(raw_score) * 1_000)
     else
       parse_ms(raw_score)
     end
+  end
+
+  def est_normalized_time_score_ms(raw_score)
+    time_cap_ms + penalty_ms(raw_score)
+  end
+
+  def penalty_units(raw)
+    raw =~ /c(\+(\d+))?/i
+    $1.to_i
   end
 
   def normalize_weight_or_reps_score(raw_score)
@@ -79,6 +97,31 @@ class Score # because Results::Score conflicts with a testing class... :/
 
   def parse_ms(time)
     (ChronicDuration.parse(time) * 1_000).to_i
+  end
+
+  def penalty_ms(raw)
+    remaining_units = penalty_units(raw)
+
+    if reps
+      if reps.is_a?(Hash)
+        result = 0
+        reps.to_a.reverse.each do |raw_s_per_rep, _reps|
+          ms_per_rep = parse_ms(raw_s_per_rep)
+
+          if _reps > remaining_units
+            return result + remaining_units * ms_per_rep
+          else
+            remaining_units -= _reps
+            result += _reps * ms_per_rep
+          end
+        end
+      else
+        ms_per_rep = time_cap_ms / reps.to_f
+        remaining_units * ms_per_rep
+      end
+    else
+      remaining_units * 1_000 # assume one second / rep
+    end
   end
 
 end
