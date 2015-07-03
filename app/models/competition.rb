@@ -1,5 +1,4 @@
-# not planning to persist this at the moment but we need a place to specify
-# events, scoring methods, and timecaps.
+# defined by the events *and* weights *and* scaling performed.
 
 class Competition < ActiveRecord::Base
 
@@ -60,6 +59,10 @@ class Competition < ActiveRecord::Base
 
     def load!
       individuals = %w[men women]
+
+      # if a competition has "reps" defined then we will use it to estimate finishing
+      # times for competitors who were time capped. otherwise we will default to
+      # 1 second / rep.
 
       individuals.each do |division|
         competition year: 2015, stage: 'regional', division: division do

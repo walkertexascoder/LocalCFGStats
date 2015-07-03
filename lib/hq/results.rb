@@ -14,19 +14,12 @@ module HQ
       new(*args).get
     end
 
-    # region and super region will both be passed in the "region" parameter
-    def initialize(year: 2015, division: 'men', stage: 'regional', region: 'south')
+    def initialize(year: 2015, division: 'men', stage: 'regional', super_region: 'south', region: nil)
       @year = year.to_i
       @division = division
       @stage = stage
-
-      # regions < 2015, super regions >= 2015 for regionals
-      # always for opens
-      if (@year < 2015 && stage == 'regional') || stage == 'open'
-        @region = region
-      else
-        @super_region = region
-      end
+      @super_region = super_region
+      @region = region
     end
 
     def get

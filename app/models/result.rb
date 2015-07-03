@@ -33,12 +33,11 @@ class Result < ActiveRecord::Base
       score = Score.new(event)
 
       self.normalized = score.to_normalized(raw)
-
-      puts [event_num, normalized] if entry_id == 4305
-
+      self.time_capped = score.time_capped?(raw)
       self.est_normalized = score.to_est_normalized(raw)
       self.est_raw = score.to_raw(est_normalized)
-      self.time_capped = score.time_capped?(raw)
+      # helpful to understand how estimates were generated.
+      self.est_reps = score.reps
     end
 
     true

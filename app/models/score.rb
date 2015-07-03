@@ -40,9 +40,11 @@ class Score # because Results::Score conflicts with a testing class... :/
     timed? && !! (raw =~ /c(\+(\d+))?/i)
   end
 
+  delegate :reps, to: :event
+
   private
 
-  delegate :timed?, :time_cap_ms, :reps, to: :event
+  delegate :timed?, :time_cap_ms, to: :event
 
   NO_SCORE_RECORDED = /^(?:\s*|---|DNF|WD|CUT|MED|--)$/
   MAXIMUM_POSTGRESQL_INTEGER = 2_147_483_647
