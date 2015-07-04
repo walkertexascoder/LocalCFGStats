@@ -9,6 +9,8 @@ module Results
     include SqlExecutor
 
     def analyze!(*args)
+      puts "analyzing #{args.inspect}"
+
       apply_loudly!(*args)
     end
 
@@ -26,8 +28,9 @@ module Results
         # go too broadly, e.g. "divison: men" and we would compare across fictional and
         # actual resutls which we would never want.
 
-        if results.select('distinct(tags)').count != 1
-          raise "expected tags to select a unique tag set: #{tags}"
+        tags_to_analyze = results.select('distinct(tags)')
+        if tags_to_analyze.count != 1
+          raise "expected tags to select a unique tag set #{tags} but was: #{tags_to_analyze}"
         end
 
         find_competition(results).events.each do |event|
@@ -49,13 +52,11 @@ module Results
     def add_analysis!(results, event)
       attempted = results.event(event.num).attempted
 
-      finished_ids, finished_normalized = attempted.not_time_capped.pluck(:id, :normalized).transpose
-      std_dev, mean = stats(finsihed_normalized)
+      finished_ids, finished_normalized = pluck_all(attempted.not_time_capped, [:id, :normalized])
+      std_dev, mean = stats(finished_normalized)
 
-      time_capped = attempted.time_capped
-
-      time_capped_ids, time_capped_est_normalized = time_capped.pluck(:id, :est_normalized)
-      est_std_dev, est_mean = stats(finished_normalized + time_capped_est_normalized)
+      time_capped_ids, time_capped_est_normalized = pluck_all(attempted.time_capped, [:id, :est_normalized])
+      est_std_dev, est_mean = stats(finished_normalized + time_capped_est_normalized) rescue byebug
 
       # if we want to make this faster (e.g. batch SQL update) then we'll need to do some things like learn how
       # to convert from normalized to raw based on event types within SQL.
@@ -65,10 +66,22 @@ module Results
       end
     end
 
+    def pluck_all(scope, attrs)
+      result = scope.pluck(*attrs).transpose
+
+      if result.empty?
+        attrs.size.times do
+          result << []
+        end
+      end
+
+      result
+    end
+
     def stats(normalized)
       stats = DescriptiveStatistics::Stats.new(normalized)
 
-      std_dev = stats.standard_deviation || 0
+      std_dev = stats.standard_deviation || 0 rescue byebug
       mean = stats.mean
 
       [std_dev, mean]
@@ -92,13 +105,13 @@ module Results
       # event if this result has no normalized value (not completed) we can still populate the
       # statistics for those who did complete.
       attrs = stat_attrs(result, std_dev, mean)
-
       attrs.merge!(stat_attrs(result, est_std_dev, est_mean, :est_))
 
       if result.finished?
         # we only know their actual standout is if no estimation is involved.
         attrs.merge!(standout: standout(result.normalized, mean, std_dev))
       end
+      attrs.merge!(est_standout: standout(result.est_normalized, est_mean, est_std_dev))
 
       result.update!(attrs)
     end
@@ -108,6 +121,8 @@ module Results
     end
 
     def format_normalized(normalized, event)
+      return nil if normalized.blank?
+
       if event.timed?
         if normalized < 0
           normalized = - normalized

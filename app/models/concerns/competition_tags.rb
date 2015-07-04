@@ -13,6 +13,7 @@ module CompetitionTags
     scope :division, -> (division) { tagged(division: division) }
     scope :men, -> { division(:men) }
     scope :women, -> { division(:women) }
+    scope :women, -> { division(:women) }
     scope :teams, -> { division(:teams) }
 
     scope :stage, -> (stage) { tagged(stage: stage ) }

@@ -1,13 +1,23 @@
+require 'hq/division'
+require 'hq/super_region'
+require 'hq/region'
+
 module Entries::HQ
 
   class Bootstrapper
 
     class << self
 
+      # Entries::HQ::Bootstrapper.bootstrap!(year: 2015, stage: 'regional', division: 'men')
+
       def bootstrap!(*args)
+        puts "bootstrapping #{args.inspect}"
+
         load!(args.first)
         analyze!(*args)
       end
+
+      # Entries::HQ::Bootstrapper.bootstrap_2015_regional_showdown!
 
       def bootstrap_2015_regional_showdown!
         regional_tags = {
@@ -18,13 +28,13 @@ module Entries::HQ
         # load all actual results
         HQ::Division.each do |division|
           HQ::SuperRegion.each do |super_region|
-            bootstrap!(regional_tags.merge(division: division, super_region: super_region))
+            bootstrap!(regional_tags.merge(division: division.name, super_region: super_region.name))
           end
         end
 
         # build fictional showdown results
         HQ::Division.each do |division|
-          tags = regional_tags.merge(division: division)
+          tags = regional_tags.merge(division: division.name)
 
           # build new results comparing all competitors within each division
           rank_fictional!(tags)

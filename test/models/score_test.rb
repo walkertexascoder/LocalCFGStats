@@ -21,12 +21,17 @@ class ScoreTest < ActiveSupport::TestCase
     end
 
     it 'converts to estimated normalized when time capped and rep breakdown provided' do
-      timed_score(time_cap: '1:00', reps: { "10" => 5, "20" => 1 }).to_est_normalized("C+2").must_equal -90_000
+      timed_score(time_cap: '1:00', reps: [ [5, "10"], [1, "20"] ]).to_est_normalized("C+2").must_equal -90_000
     end
 
     it 'converts to raw when time capped' do
       timed_score(time_cap: '1:00').to_raw(-61_000).must_equal 'C+1'
     end
+
+    it 'converts to estimated raw when time capped' do
+      timed_score(time_cap: '1:00', reps: [ [5, "10"], [1, "20"] ]).to_est_raw(-90_000).must_equal '1:30'
+    end
+
   end
 
   describe 'weights or reps' do

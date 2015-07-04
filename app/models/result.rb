@@ -35,7 +35,7 @@ class Result < ActiveRecord::Base
       self.normalized = score.to_normalized(raw)
       self.time_capped = score.time_capped?(raw)
       self.est_normalized = score.to_est_normalized(raw)
-      self.est_raw = score.to_raw(est_normalized)
+      self.est_raw = score.to_est_raw(est_normalized)
       # helpful to understand how estimates were generated.
       self.est_reps = score.reps
     end

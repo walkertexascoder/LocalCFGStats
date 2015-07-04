@@ -20,6 +20,15 @@ class Score # because Results::Score conflicts with a testing class... :/
     end
   end
 
+  def to_est_raw(normalized)
+    # the only difference with to_raw will be that we won't use a time cap "C+N" format.
+    if timed?
+      est_raw_timed_score(normalized)
+    else
+      to_raw(normalized)
+    end
+  end
+
   def to_normalized(raw)
     if timed?
       - normalize_time_score_ms(raw)
@@ -53,12 +62,16 @@ class Score # because Results::Score conflicts with a testing class... :/
     time_cap_ms && (- normalized) > time_cap_ms
   end
 
+  def est_raw_timed_score(normalized)
+    ChronicDuration.output(- (normalized / 1_000.0), format: :chrono)
+  end
+
   def raw_timed_score(normalized)
     if normalized_time_capped?(normalized)
       difference = - (normalized + time_cap_ms)
       "C+#{difference / 1_000}"
     else
-      ChronicDuration.output(- (normalized / 1_000.0), format: :chrono)
+      est_raw_timed_score(normalized)
     end
   end
 
@@ -105,9 +118,9 @@ class Score # because Results::Score conflicts with a testing class... :/
     remaining_units = penalty_units(raw)
 
     if reps
-      if reps.is_a?(Hash)
+      if reps.is_a?(Array)
         result = 0
-        reps.to_a.reverse.each do |raw_s_per_rep, _reps|
+        reps.reverse.each do |_reps, raw_s_per_rep|
           ms_per_rep = parse_ms(raw_s_per_rep)
 
           if _reps > remaining_units

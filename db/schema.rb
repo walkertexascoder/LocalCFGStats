@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150630090401) do
+ActiveRecord::Schema.define(version: 20150703082833) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -66,11 +66,12 @@ ActiveRecord::Schema.define(version: 20150630090401) do
     t.integer  "competitor_id"
     t.string   "raw_std_dev"
     t.string   "raw_mean"
-    t.string   "raw_est_mean"
-    t.string   "raw_est_std_dev"
+    t.string   "est_raw_mean"
+    t.string   "est_raw_std_dev"
     t.float    "est_standout"
     t.string   "est_raw"
     t.float    "est_normalized"
+    t.jsonb    "est_reps"
   end
 
   add_index "results", ["competition_id"], name: "index_results_on_competition_id", using: :btree

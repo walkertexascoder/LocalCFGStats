@@ -11,6 +11,8 @@ module Results
     # Results::Ranker.rank!(year: 2015, stage: 'regional', division: 'men')
 
     def rank!(*args)
+      puts "ranking fictional #{args.inspect}"
+
       silence do
         rank_loudly!(*args)
       end
@@ -27,7 +29,7 @@ module Results
 
       new_tags = tags.merge(fictional: true)
 
-      if Result.tagged(new_tags).exist?
+      if Result.tagged(new_tags).exists?
         raise "results already exist for #{new_tags}"
       end
 
@@ -49,8 +51,11 @@ module Results
     end
 
     def rank_for_event!(results, new_tags, event)
-      results.event(event.num).order('normalized desc').each_with_index do |result, index|
-        Result.create(result.attrs.merge(rank: index + 1, tags: new_tags))
+      results.event(event.num).order('normalized desc nulls last').each_with_index do |result, index|
+        attrs = result.attributes
+        attrs.delete('id')
+
+        Result.create(attrs.merge(rank: index + 1, tags: new_tags))
       end
     end
 

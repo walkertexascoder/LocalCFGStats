@@ -15,6 +15,8 @@ module Entries::HQ
     end
 
     def load!
+      puts "loading #{args.inspect}"
+
       silence do
         load_loudly!
       end
@@ -36,7 +38,7 @@ module Entries::HQ
 
       hq_results.each do |competitor_name, hq_results_attrs|
         # each result corresponds to an entry in the leaderboard, i.e. competitor and their event results
-        load_results!(competitor_name, hq_results_attrs, competition)
+        load_results!(competitor_name, hq_results, hq_results_attrs, competition)
       end
     end
 
@@ -56,12 +58,12 @@ module Entries::HQ
       competition
     end
 
-    def load_results!(competitor_name, hq_results_attrs, competition)
-      competitor = load_competitor!(competitor_name, hq_results_attrs)
+    def load_results!(competitor_name, hq_results, hq_entry_attrs, competition)
+      competitor = load_competitor!(competitor_name, hq_entry_attrs)
 
-      entry = load_entry!(competitor, competition, hq_results_attrs)
+      entry = load_entry!(competitor, competition, hq_results)
 
-      hq_results_attrs[:results].each_with_index do |hq_result_attrs, index|
+      hq_entry_attrs[:results].each_with_index do |hq_result_attrs, index|
         load_result!(entry, hq_result_attrs, index)
       end
     end
@@ -79,13 +81,13 @@ module Entries::HQ
           find_or_create_by(hq_id: hq_entry_attrs[:id])
     end
 
-    def load_entry!(competitor, competition, hq_results_attrs)
+    def load_entry!(competitor, competition, hq_results)
       entry_tags = {
-          year: hq_results_attrs.year,
-          division: hq_results_attrs.division,
-          stage: hq_results_attrs.stage,
-          region: hq_results_attrs.region,
-          super_region: hq_results_attrs.super_region
+          year: hq_results.year,
+          division: hq_results.division,
+          stage: hq_results.stage,
+          region: hq_results.region,
+          super_region: hq_results.super_region
       }
 
       entry = Entry.where(
@@ -107,7 +109,7 @@ module Entries::HQ
       result = Result.where(
           entry_id: entry.id,
           event_num: index + 1
-      ).tagged(result_tags).first
+      ).tagged(entry.tags).first
 
       unless result
         result = Result.create(
@@ -115,9 +117,9 @@ module Entries::HQ
             competitor_id: entry.competitor_id,
             event_num: index + 1,
             tags: entry.tags,
-            raw: hq_result[:raw],
-            rank: hq_result[:rank],
-            competition_id: competition.id,
+            raw: hq_result_attrs[:raw],
+            rank: hq_result_attrs[:rank],
+            competition_id: entry.competition.id,
             entry_id: entry.id
         )
       end
