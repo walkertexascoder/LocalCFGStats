@@ -4,11 +4,11 @@ module CompetitionTags
 
   included do
 
-    scope :tagged, -> (tags) { where("tags @> ?", tags.to_json) }
-    scope :with_tag, -> (tag) { where("tags ? '#{tag}'") }
-    scope :without_tag, -> (tag) { where("not (tags ? '#{tag}')") }
+    scope :tagged, -> (tags) { where("#{self.table_name}.tags @> ?", tags.to_json) }
+    scope :with_tag, -> (tag) { where("#{self.table_name}.tags ? '#{tag}'") }
+    scope :without_tag, -> (tag) { where("not (#{self.table_name}.tags ? '#{tag}')") }
 
-    scope :not_for_optional_tag, -> (tag) { where("(not (tags ? '#{tag}')) or (tags @> '#{ { tag => false }.to_json }')") }
+    scope :not_for_optional_tag, -> (tag) { where("(not (#{self.table_name}.tags ? '#{tag}')) or (#{self.table_name}.tags @> '#{ { tag => false }.to_json }')") }
 
     scope :division, -> (division) { tagged(division: division) }
     scope :men, -> { division(:men) }
@@ -33,8 +33,8 @@ module CompetitionTags
     scope :fictional, -> { tagged(fictional: true) }
     scope :actual, -> { not_for_optional_tag(:fictional) }
 
-    scope :games_qualifiers, -> { tagged(games_qualifiers: true) }
-    scope :not_games_qualifiers, -> { not_for_optional_tag(:games_qualifiers) }
+    scope :games_qualifier, -> { tagged(games_qualifier: true) }
+    scope :not_games_qualifier, -> { not_for_optional_tag(:games_qualifier ) }
 
   end
 

@@ -8,11 +8,9 @@ module Results
     include Silence
     include SqlExecutor
 
-    # Results::Ranker.rank!(year: 2015, stage: 'regional', division: 'men')
+    # Results::Ranker.rank!(results, {year: 2015, stage: 'regional', division: 'men'})
 
     def rank!(*args)
-      puts "ranking fictional #{args.inspect}"
-
       silence do
         rank_loudly!(*args)
       end
@@ -24,10 +22,9 @@ module Results
 
     private
 
-    def rank_loudly!(tags)
-      results = Result.tagged(tags)
-
-      new_tags = tags.merge(fictional: true)
+    def rank_loudly!(results, new_tags)
+      # safeguard...
+      new_tags[:fictional] = true
 
       if Result.tagged(new_tags).exists?
         raise "results already exist for #{new_tags}"
@@ -51,11 +48,22 @@ module Results
     end
 
     def rank_for_event!(results, new_tags, event)
-      results.event(event.num).order('normalized desc nulls last').each_with_index do |result, index|
+      last_normalized = nil
+      rank_for_normalized = nil
+
+      results.event(event.num).joins(:competitor).order('normalized desc nulls last, name desc').each_with_index do |result, index|
+        if index > 0 && last_normalized == result.normalized
+          # scores are the same. we should leave the rank the same.
+        elsif
+          rank_for_normalized = index + 1
+        end
+
         attrs = result.attributes
         attrs.delete('id')
 
-        Result.create(attrs.merge(rank: index + 1, tags: new_tags))
+        Result.create(attrs.merge(rank: rank_for_normalized, tags: new_tags))
+
+        last_normalized = result.normalized
       end
     end
 

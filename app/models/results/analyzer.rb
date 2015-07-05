@@ -20,7 +20,7 @@ module Results
 
     private
 
-    def apply_loudly!(tags, opts = {})
+    def apply_loudly!(tags)
       silence do
         results = Result.tagged(tags)
 
@@ -30,7 +30,7 @@ module Results
 
         tags_to_analyze = results.select('distinct(tags)')
         if tags_to_analyze.count != 1
-          raise "expected tags to select a unique tag set #{tags} but was: #{tags_to_analyze}"
+          raise "expected tags to select a unique tag set #{tags} but was: #{tags_to_analyze.map(&:tags)}"
         end
 
         find_competition(results).events.each do |event|

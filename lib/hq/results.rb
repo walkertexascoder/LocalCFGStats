@@ -205,7 +205,7 @@ module HQ
     end
 
     def page
-      puts "URL: #{url}"
+      # puts "URL: #{url}"
       html = open(url).read
       Capybara.string(html)
     end
