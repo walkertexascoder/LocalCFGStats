@@ -94,11 +94,13 @@ module Entries::HQ
       def rank_games_qualifiers_by_division!(tags)
         silence do
           HQ::Division.each do |division|
+            puts division.name
+
             qualifier_ids = []
 
             HQ::SuperRegion.each do |super_region|
-              super_region_tags = tags.merge(division: division.name, super_region: super_region.name)
-              qualifier_ids += Leaderboards::Overall.new(super_region_tags, '2015_regional').first(5).map {|r| r[:competitor] }.map(&:id)
+              results = Result.tagged(tags.merge(division: division.name, super_region: super_region.name))
+              qualifier_ids += Leaderboards::Overall.new(results, '2015_regional').first(5).map {|r| r[:competitor] }.map(&:id)
             end
 
             division_tags = tags.merge(division: division.name)

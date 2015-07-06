@@ -21,7 +21,7 @@
   NOTE:
   %b
     2015 Regional
-  cannot be used to score Overall leaderboards because it is not defined to support that many people.
+  cannot be used to score Across Regions because it is not defined to support that many people.
 
 = form_tag leaderboards_overall_path(stage: 'regional', format: :csv), { class: '' } do
 
@@ -34,10 +34,6 @@
     Score using
     = select_tag :scorer, scorer_options, { class: 'form-control' }
     method
-
-  .form-group
-    = check_box_tag :games_qualifier, { class: 'form-control' }
-    Include only Games qualifers?
 
   .form-group
     = submit_tag 'Download', { class: 'btn btn-primary' }

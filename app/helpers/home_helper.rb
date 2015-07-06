@@ -46,7 +46,8 @@ module HomeHelper
 
   def analyzed_super_region_select_options
     options = HQ::SuperRegion.map {|e| [e.name.titleize, e.name] }
-    options.unshift(['Overall', 'overall'])
+    options.unshift(['Games Qualifiers', 'games_qualifier'])
+    options.unshift(['Across Regions', 'overall'])
     options_for_select(options)
   end
 

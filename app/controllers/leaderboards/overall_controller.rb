@@ -17,22 +17,22 @@ class Leaderboards::OverallController < ApplicationController
     # always categorizing by these...
     results = Result.tagged(year: year, division: division_id, stage: stage_id)
 
-    if cross_region?
+    if fictional?
       results = results.fictional
+    end
+
+    if ! cross_region? && ! games_qualifier?
+      if region_id.present?
+        results = results.region(region_id)
+      elsif super_region_id.present?
+        results = results.super_region(super_region_id)
+      end
     end
 
     if games_qualifier?
       results = results.games_qualifier
     else
       results = results.not_games_qualifier
-    end
-
-    if region_id.present? && ! cross_region?
-      results = results.region(region_id)
-    end
-
-    if super_region_id.present? && ! cross_region?
-      results = results.super_region(region_id)
     end
 
     results
@@ -70,12 +70,16 @@ class Leaderboards::OverallController < ApplicationController
     params[:stage]
   end
 
+  def fictional?
+    cross_region? || games_qualifier?
+  end
+
   def cross_region?
-    region_id == 'overall' || super_region_id == 'overall'
+    params[:region] == 'overall'
   end
 
   def games_qualifier?
-    params[:games_qualifier].present?
+    params[:region] == 'games_qualifier'
   end
 
   def region_id
