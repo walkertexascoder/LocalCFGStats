@@ -1,1 +1,78 @@
-= render 'shared/search'
+%h1 FloElite CFG Stats
+
+%h2 Analyzed
+
+%p
+  These results have been analyzed within their peer group For the moment only the 2015 Regional has this information.
+  If we're happy with it then we can analyze the rest of the HQ Results.
+
+%p
+  The
+  %b
+    Golf
+  scoring method scores each event by their rank and then sorts from lowest score to highest. This is how
+  Open workouts are scored and Regionals were prior to 2015. The
+  %b
+    2015 Regional
+  scoring method is a tiered scoring method that weights higher placement according to
+  = link_to 'http://games.crossfit.com/article/your-guide-regional-scoring'
+
+%p
+  NOTE:
+  %b
+    2015 Regional
+  cannot be used to score Overall leaderboards because it is not defined to support that many people.
+
+= form_tag leaderboards_overall_path(stage: 'regional', format: :csv), { class: '' } do
+
+  .form-group.form-inline
+    = select_tag :year, analyzed_year_select_options, { class: 'form-control' }
+    = select_tag :division, division_select_options, { class: 'form-control' }
+    = select_tag :region, analyzed_super_region_select_options, { class: 'form-control' }
+
+  .form-group.form-inline
+    Score using
+    = select_tag :scorer, scorer_options, { class: 'form-control' }
+    method
+
+  .form-group
+    = check_box_tag :games_qualifier, { class: 'form-control' }
+    Include only Games qualifers?
+
+  .form-group
+    = submit_tag 'Download', { class: 'btn btn-primary' }
+
+%h2 Raw
+
+%p
+  These results are pulled directly from
+  = link_to 'http://games.crossfit.com'
+  and are useful if you want those in a more malleable format. These serve as the basis for the more advanced analysis
+  and leaderboards provided here.
+
+%h3 Games
+
+= form_tag hq_results_path(stage: 'games', format: :csv), { class: 'form-inline' } do
+  = select_tag :year, year_select_options, { class: 'form-control' }
+  = select_tag :division, division_select_options, { class: 'form-control' }
+  = submit_tag 'Download', { class: 'btn btn-primary' }
+
+%h3 Regionals
+
+= form_tag hq_results_path(stage: 'regional', format: :csv), { class: 'form-inline' } do
+  = select_tag :year, year_select_options, { class: 'form-control' }
+  = select_tag :division, division_select_options, { class: 'form-control' }
+  = select_tag :region, super_region_and_region_select_options, { class: 'form-control' }
+  = submit_tag 'Download', { class: 'btn btn-primary' }
+
+%p.help-block
+  Be careful to only select Super Regions for years 2015 or later.
+
+%h3 Open
+
+= form_tag hq_results_path(stage: 'open', format: :csv), { class: 'form-inline' } do
+  .form-group
+    = select_tag :year, year_select_options, { class: 'form-control' }
+    = select_tag :division, division_select_options, { class: 'form-control' }
+    = select_tag :region, region_select_options, { class: 'form-control' }
+    = submit_tag 'Download', { class: 'btn btn-primary' }

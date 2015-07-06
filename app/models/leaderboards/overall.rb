@@ -1,3 +1,5 @@
+require 'csv'
+
 module Leaderboards
 
   class Overall
@@ -6,8 +8,8 @@ module Leaderboards
 
     # Leaderboards::Overall.new({year: 2015, division: 'men', games_qualifier: true})
 
-    def initialize(tags, scorer = '2015_regional')
-      @tags = tags
+    def initialize(results, scorer = '2015_regional')
+      @results = results
 
       case scorer
         when 'golf'
@@ -19,13 +21,53 @@ module Leaderboards
       @scorer = scorer
     end
 
-    attr_reader :tags, :scorer
+    attr_reader :results, :scorer
 
     # each entry consists of [competitor, score]
 
     def each
       leaderboard.each do |entry|
         yield entry
+      end
+    end
+
+    def to_csv
+      CSV.generate do |csv|
+        header = ['Name', 'Score']
+
+        first[:results].count.times do |index|
+          event = "Event #{index + 1}"
+          header << "#{event} Result"
+          header << "#{event} Rank"
+          header << "#{event} Score"
+          header << "#{event} Std Dev"
+          header << "#{event} Mean"
+          header << "#{event} Standout"
+          header << "#{event} Est Result"
+          header << "#{event} Est Std Dev"
+          header << "#{event} Est Mean"
+          header << "#{event} Est Standout"
+        end
+        csv << header
+
+        each do |entry|
+          csv_row = [ entry[:competitor].name, entry[:score] ]
+
+          entry[:results].each do |result|
+            csv_row << result.raw
+            csv_row << result.rank
+            csv_row << scorer.score(result.rank)
+            csv_row << result.raw_std_dev
+            csv_row << result.raw_mean
+            csv_row << result.standout
+            csv_row << result.est_raw
+            csv_row << result.est_raw_std_dev
+            csv_row << result.est_raw_mean
+            csv_row << result.est_standout
+          end
+
+          csv << csv_row
+        end
       end
     end
 
@@ -73,8 +115,6 @@ module Leaderboards
     def build_leaderboard
       score_by_competitor = Hash.new {|h, k| h[k] = 0 }
       results_by_competitor = Hash.new {|h, k| h[k] = [] }
-
-      results = Result.tagged(tags)
 
       find_competition(results).events.each do |event|
         results.includes(:competitor).event(event.num).order(:rank).each do |event_result|

@@ -31,16 +31,19 @@ module Entries::HQ
 
         load_all_regions!(regional_tags)
 
+        puts
         puts "tag weeks"
         puts
 
         tag_super_region_2015_weeks!(regional_tags)
 
+        puts
         puts "load fictional rankings by division"
         puts
 
         rank_fictional_by_division!(regional_tags)
 
+        puts
         puts "load fictional rankings for games qualifiers by division"
         puts
 

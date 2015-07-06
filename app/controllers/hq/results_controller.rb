@@ -1,12 +1,13 @@
 require 'csv'
 require 'hq/results'
 
-class ResultsController < ApplicationController
+class HQ::ResultsController < ApplicationController
 
   def create
     results = HQ::Results.get(
       year: year,
       division: division_id,
+      super_region: super_region_id,
       region: region_id,
       stage: stage_id
     )
@@ -40,7 +41,15 @@ class ResultsController < ApplicationController
   end
 
   def region_id
-    params[:region]
+    if (stage_id == 'regional' && year < 2015) || stage_id == 'open'
+      params[:region]
+    end
+  end
+
+  def super_region_id
+    if stage_id == 'regional' && year > 2015
+      params[:region]
+    end
   end
 
 end

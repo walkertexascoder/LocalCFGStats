@@ -36,4 +36,18 @@ module HomeHelper
     options_for_select(options)
   end
 
+  def analyzed_year_select_options
+    options_for_select([2015])
+  end
+
+  def scorer_options
+    options_for_select([['Golf', 'golf'], ['2015 Regional', '2015_regional']])
+  end
+
+  def analyzed_super_region_select_options
+    options = HQ::SuperRegion.map {|e| [e.name.titleize, e.name] }
+    options.unshift(['Overall', 'overall'])
+    options_for_select(options)
+  end
+
 end

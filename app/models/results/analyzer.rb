@@ -117,7 +117,8 @@ module Results
     end
 
     def standout(normalized, mean, std_dev)
-      (normalized - mean) / (std_dev.zero? ? 1 : std_dev)
+      result = (normalized - mean) / (std_dev.zero? ? 1 : std_dev)
+      result.round(2)
     end
 
     def format_normalized(normalized, event)
