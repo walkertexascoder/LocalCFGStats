@@ -51,6 +51,8 @@ class Leaderboards::OverallController < ApplicationController
       parts << 'qualified'
     end
 
+    parts << scorer
+
     parts.reject(&:blank?).join('_') + ".csv"
   end
 
