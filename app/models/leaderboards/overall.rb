@@ -6,7 +6,7 @@ module Leaderboards
 
     include Enumerable
 
-    # Leaderboards::Overall.new({year: 2015, division: 'men', games_qualifier: true})
+    # Leaderboards::Overall.new(Result.tagged({year: 2016, division: 'men', games_qualifier: true}))
 
     def initialize(results, scorer = '2015_regional')
       @results = results

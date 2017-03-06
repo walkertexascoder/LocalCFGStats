@@ -111,6 +111,8 @@ module Entries::HQ
           event_num: index + 1
       ).tagged(entry.tags).first
 
+      byebug if entry.competition.nil?
+
       unless result
         result = Result.create(
             entry_id: entry.id,

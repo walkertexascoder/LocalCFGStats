@@ -84,6 +84,7 @@ class Score # because Results::Score conflicts with a testing class... :/
       MAXIMUM_POSTGRESQL_INTEGER
     elsif time_capped?(raw_score)
       # unless estimating, always assume 1_000 ms per penalty unit
+      byebug if time_cap_ms.nil?
       time_cap_ms + (penalty_units(raw_score) * 1_000)
     else
       parse_ms(raw_score)

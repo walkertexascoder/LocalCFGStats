@@ -50,6 +50,37 @@ module Entries::HQ
         rank_games_qualifiers_by_division!(regional_tags)
       end
 
+      def bootstrap_2016_regional_showdown!
+        regional_tags = {
+            year: 2016,
+            stage: 'regional'
+        }
+
+        puts "load actual rankings"
+        puts
+
+        load_all_regions!(regional_tags)
+
+        puts
+        puts "tag weeks"
+        puts
+
+        tag_super_region_2016_weeks!(regional_tags)
+
+        puts
+        puts "load fictional rankings by division"
+        puts
+
+        rank_fictional_by_division!(regional_tags)
+
+        puts
+        puts "load fictional rankings for games qualifiers by division"
+        puts
+
+        rank_games_qualifiers_by_division!(regional_tags)
+      end
+
+
       private
 
       include Silence
@@ -90,6 +121,24 @@ module Entries::HQ
           end
         end
       end
+
+      def tag_super_region_2016_weeks!(tags)
+        [
+            %w[california south pacific],
+            %w[west atlantic],
+            %w[central meridian east]
+        ].each_with_index do |super_regions, index|
+          super_regions.each do |super_region|
+            silence do
+              Result.tagged(tags.merge(super_region: super_region)).each do |result|
+                result.tags[:week] = index + 1
+                result.save!
+              end
+            end
+          end
+        end
+      end
+
 
       def rank_games_qualifiers_by_division!(tags)
         silence do

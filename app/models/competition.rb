@@ -57,7 +57,7 @@ class Competition < ActiveRecord::Base
 
   class << self
 
-    def load!
+    def load_2015!
       individuals = %w[men women]
 
       # if a competition has "reps" defined then we will use it to estimate finishing
@@ -91,6 +91,34 @@ class Competition < ActiveRecord::Base
         event 5, '6x100\' HS Walk', :time, time_cap: '7:00'
         event 6, 'GHD, MU, HPC', :time, time_cap: '25:00'
         event 7, 'Row, HSPU, T2B, OH Lunge', :time, time_cap: '20:00'
+      end
+    end
+
+    def load_2016!
+      individuals = %w[men women]
+
+      individuals.each do |division|
+        competition year: 2016, stage: 'regional', division: division do
+          event 1, 'Snatches', :time, time_cap: '11:00'
+          event 2, 'Regional Nate', :time, time_cap: '20:00'
+          event 3, 'Sprint A', :time, time_cap: '6:00'
+          event 4, 'Sprint B', :time, time_cap: '10:00'
+          event 5, 'Posterior Chain', :time, time_cap: '16:00'
+          event 6, 'Chipper', :time, time_cap: '16:00'
+          event 7, 'Rope Climb', :time, time_cap: '6:00'
+        end
+      end
+
+      competition year: 2016, stage: 'regional', division: 'teams' do
+        event 1, 'Strict HSPU', :time, time_cap: '20:00'
+        event 2, 'Men Snatches', :weight
+        event 3, 'Women Snatches', :weight
+        event 4, 'Run A', :time, time_cap: '20:00'
+        event 5, 'Run B', :time, time_cap: '20:00'
+        event 6, 'Deadlift Burpees', :time, time_cap: '20:00'
+        event 7, 'HS Walk A', :time, time_cap: '15:00'
+        event 8, 'HS Walk B', :time, time_cap: '15:00'
+        event 9, 'Rope Climbs', :time, time_cap: '25:00'
       end
     end
 
